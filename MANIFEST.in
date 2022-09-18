@@ -1,0 +1,18 @@
+include MANIFEST.in
+include requirements.txt
+include *.json
+include *.md
+include *.py
+include *.txt
+recursive-include beansnseeds *.css
+recursive-include beansnseeds *.csv
+recursive-include beansnseeds *.html
+recursive-include beansnseeds *.ico
+recursive-include beansnseeds *.js
+recursive-include beansnseeds *.json
+recursive-include beansnseeds *.md
+recursive-include beansnseeds *.png
+recursive-include beansnseeds *.py
+recursive-include beansnseeds *.svg
+recursive-include beansnseeds *.txt
+recursive-exclude beansnseeds *.pyc
