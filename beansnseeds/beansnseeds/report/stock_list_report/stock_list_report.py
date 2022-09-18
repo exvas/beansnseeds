@@ -1,5 +1,6 @@
 # Copyright (c) 2022, sammish and contributors
 # For license information, please see license.txt
+# sammish.thundiyil@gmail.com
 
 from __future__ import unicode_literals
 import frappe
