@@ -49,6 +49,17 @@ frappe.query_reports["Item Balance"] = {
 				}
 			}
 		},
+		{
+			"fieldname":"item_group",
+			"label": __("Item Group"),
+			"fieldtype": "Link",
+			"options": "Item Group"
+		},
+		{
+			"fieldname":"voucher_no",
+			"label": __("Voucher #"),
+			"fieldtype": "Data"
+		},
 	],
 	"formatter": function (value, row, column, data, default_formatter) {
 		value = default_formatter(value, row, column, data);
@@ -61,6 +72,4 @@ frappe.query_reports["Item Balance"] = {
 
 		return value;
 	},
-};
-
-erpnext.utils.add_inventory_dimensions('Stock Ledger', 10);
+}
