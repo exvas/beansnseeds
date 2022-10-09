@@ -52,7 +52,7 @@ frappe.query_reports["Salesman Stock Report"] = {
 			"label": __("Warehouse"),
 			"fieldtype": "Select",
 			"width": "80",
-			"options": "\nFiros khan - CS",
+			"options": "\nFiros khan - BAS",
 			"reqd": 1,
 			get_query: () => {
 				let warehouse_type = frappe.query_report.get_filter_value("warehouse_type");
