@@ -174,7 +174,20 @@ user_data_fields = [
 
 # Authentication and authorization
 # --------------------------------
-
+fixtures = [
+    {
+        "doctype": "Custom Field",
+        "filters": [
+            [
+                "name",
+                "in",
+                [
+                    "Payment Entry-sales_person",
+                ]
+            ]
+        ]
+    }
+]
 # auth_hooks = [
 # 	"beansnseeds.auth.validate"
 # ]
