@@ -17,6 +17,7 @@ def execute(filters=None):
 				'grand_total':li.grand_total,
 				'outstanding_amount':li.outstanding_amount,
 				'paid_amount':li.paid_amount,
+				'company':li.company,
 				
 			})	
 		data.append(row)
@@ -32,6 +33,7 @@ def execute(filters=None):
 					'grand_total':l.grand_total,
 					'outstanding_amount':l.outstanding_amount,
 					'paid_amount':l.paid_amount,
+					'company':l.company,
 					
 				})
 				
@@ -58,14 +60,16 @@ def get_columns():
  		},
 		{
    			"fieldname": "sales_invoice_reference",
-   			"fieldtype": "Data",
+   			"fieldtype": "Link",
    			"label": "SI Reference",
+			"options":"Sales Invoice",
 			"width":120
   		},
 		{
    			"fieldname": "reference",
-   			"fieldtype": "Data",
+   			"fieldtype": "Link",
    			"label": "PE Reference",
+			"options":"Payment Entry",
 			"width":120
   		},
 		{
@@ -85,6 +89,13 @@ def get_columns():
    			"fieldtype": "Currency",
    			"label": "Paid Amount",
 			"width":120 
+  		},
+		{
+   			"fieldname": "company",
+   			"fieldtype": "Link",
+   			"label": "Company",
+			"options": "Company",
+			"width":120 
   		},	
 		
 	]
@@ -95,6 +106,7 @@ def get_lists(filters):
 
 	parent=frappe.db.sql("""SELECT 
 	s1.posting_date as date,
+	s1.company,
 	s1.name as sales_invoice_reference,
 	s1.grand_total,
 	s1.outstanding_amount,
@@ -114,6 +126,7 @@ def get_pay_lists(filters,si_name):
 	data=[]
 	parent=frappe.db.sql("""SELECT 
 	s1.posting_date as date,
+	s1.company,
 	st1.sales_person,
 	p1.parent as pname,
 	p1.allocated_amount as paid_amount
@@ -132,12 +145,37 @@ def get_conditions(filters):
 	if filters.get("sales_person"):
 		conditions += " and st1.sales_person='{0}' ".format(filters.get("sales_person"))
 		if filters.get("from_date") and filters.get("to_date"):
-			conditions = " WHERE s1.posting_date BETWEEN '{0}' and '{1}' ".format(filters.get("from_date"),filters.get("to_date"))
-	
-	
+			conditions += " WHERE s1.posting_date BETWEEN '{0}' and '{1}' ".format(filters.get("from_date"),filters.get("to_date"))
+			if filters.get("company"):
+				conditions += " and s1.company='{0}' ".format(filters.get("company"))
+		# if filters.get("sales_person") and filters.get("from_date") and filters.get("to_date"):
+		# 	conditions += " and s1.company='{0}' ".format(filters.get("company"))
+		# if filters.get("sales_person") and filters.get("company"):
+		# 	conditions = " WHERE s1.posting_date BETWEEN '{0}' and '{1}' ".format(filters.get("from_date"),filters.get("to_date"))
+		if filters.get("company"):
+			conditions += " and s1.company='{0}' ".format(filters.get("company"))
+			if filters.get("from_date") and filters.get("to_date"):
+				conditions = " WHERE s1.posting_date BETWEEN '{0}' and '{1}' ".format(filters.get("from_date"),filters.get("to_date"))
 	if filters.get("from_date") and filters.get("to_date"):
 		conditions = " WHERE s1.posting_date BETWEEN '{0}' and '{1}' ".format(filters.get("from_date"),filters.get("to_date"))
 		if filters.get("sales_person"):
 			conditions += " and st1.sales_person='{0}' ".format(filters.get("sales_person"))
+			if filters.get("company"):
+				conditions += " and s1.company='{0}' ".format(filters.get("company"))
+		if filters.get("company"):
+			conditions += " and s1.company='{0}' ".format(filters.get("company"))
+			if filters.get("sales_person"):
+				conditions += " and st1.sales_person='{0}' ".format(filters.get("sales_person"))
+	if filters.get("company"):
+			conditions += " and s1.company='{0}' ".format(filters.get("company"))	
+			if filters.get("from_date") and filters.get("to_date"):
+				conditions = " WHERE s1.posting_date BETWEEN '{0}' and '{1}' ".format(filters.get("from_date"),filters.get("to_date"))
+				if filters.get("sales_person"):
+					conditions += " and st1.sales_person='{0}' ".format(filters.get("sales_person"))
+			if filters.get("sales_person"):
+				conditions += " and st1.sales_person='{0}' ".format(filters.get("sales_person"))
+				if filters.get("from_date") and filters.get("to_date"):
+					conditions = " WHERE s1.posting_date BETWEEN '{0}' and '{1}' ".format(filters.get("from_date"),filters.get("to_date"))
+
 	return conditions
 
