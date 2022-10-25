@@ -1,0 +1,54 @@
+{
+ "add_total_row": 0,
+ "columns": [],
+ "creation": "2022-10-23 10:02:55.793345",
+ "disable_prepared_report": 0,
+ "disabled": 0,
+ "docstatus": 0,
+ "doctype": "Report",
+ "filters": [],
+ "idx": 0,
+ "is_standard": "Yes",
+ "letter_head": "beansnseeds",
+ "modified": "2022-10-23 10:04:11.626584",
+ "modified_by": "Administrator",
+ "module": "Beansnseeds",
+ "name": "Gross Weight Report New",
+ "owner": "Administrator",
+ "prepared_report": 0,
+ "ref_doctype": "Item",
+ "report_name": "Gross Weight Report New",
+ "report_type": "Script Report",
+ "roles": [
+  {
+   "role": "Item Manager"
+  },
+  {
+   "role": "Maintenance User"
+  },
+  {
+   "role": "Stock Manager"
+  },
+  {
+   "role": "Purchase User"
+  },
+  {
+   "role": "Accounts User"
+  },
+  {
+   "role": "Stock User"
+  },
+  {
+   "role": "Sales User"
+  },
+  {
+   "role": "Manufacturing User"
+  },
+  {
+   "role": "All"
+  },
+  {
+   "role": "VAN_Salesman"
+  }
+ ]
+}

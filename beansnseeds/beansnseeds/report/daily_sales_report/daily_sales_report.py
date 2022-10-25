@@ -17,7 +17,7 @@ def execute(filters=None):
 				'grand_total':li.grand_total,
 				'outstanding_amount':li.outstanding_amount,
 				'paid_amount':li.paid_amount,
-				'company':li.company,
+				
 				
 			})	
 		data.append(row)
@@ -33,7 +33,7 @@ def execute(filters=None):
 					'grand_total':l.grand_total,
 					'outstanding_amount':l.outstanding_amount,
 					'paid_amount':l.paid_amount,
-					'company':l.company,
+					
 					
 				})
 				
@@ -55,7 +55,7 @@ def get_columns():
    			"fieldtype": "Link",
    			"label": "Sales Person",
 			"options":"Sales Person",
-			"width":120
+			"width":170
 			
  		},
 		{
@@ -63,14 +63,14 @@ def get_columns():
    			"fieldtype": "Link",
    			"label": "SI Reference",
 			"options":"Sales Invoice",
-			"width":120
+			"width":150
   		},
 		{
    			"fieldname": "reference",
    			"fieldtype": "Link",
    			"label": "PE Reference",
 			"options":"Payment Entry",
-			"width":120
+			"width":170
   		},
 		{
    			"fieldname": "grand_total",
@@ -90,13 +90,13 @@ def get_columns():
    			"label": "Paid Amount",
 			"width":120 
   		},
-		{
-   			"fieldname": "company",
-   			"fieldtype": "Link",
-   			"label": "Company",
-			"options": "Company",
-			"width":120 
-  		},	
+		# {
+   		# 	"fieldname": "company",
+   		# 	"fieldtype": "Link",
+   		# 	"label": "Company",
+		# 	"options": "Company",
+		# 	"width":120 
+  		# },	
 		
 	]
 def get_lists(filters):
@@ -113,7 +113,7 @@ def get_lists(filters):
 	s1.status,
 	st1.sales_person
 	FROM `tabSales Invoice` AS s1 
-	INNER JOIN `tabSales Team` AS st1 ON s1.name=st1.parent 
+	INNER JOIN `tabSales Team` AS st1 ON s1.name=st1.parent and s1.docstatus=1
 	{0}""".format(conditions),as_dict=1)
 	for dic_p in parent:
 		dic_p["indent"] = 0
@@ -132,7 +132,7 @@ def get_pay_lists(filters,si_name):
 	p1.allocated_amount as paid_amount
 	FROM `tabSales Invoice` AS s1 
 	INNER JOIN `tabSales Team` AS st1 ON s1.name=st1.parent  
-	INNER JOIN `tabPayment Entry Reference` AS p1 ON p1.reference_name=s1.name and p1.reference_name=%s {0} """.format(conditions),si_name,as_dict=1)
+	INNER JOIN `tabPayment Entry Reference` AS p1 ON p1.reference_name=s1.name and s1.docstatus=1 and p1.reference_name=%s {0} """.format(conditions),si_name,as_dict=1)
 	for dic_p in parent:
 		dic_p["indent"] = 0
 		filters=conditions

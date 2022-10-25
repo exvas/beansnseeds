@@ -2,14 +2,13 @@
 // For license information, please see license.txt
 /* eslint-disable */
 
-frappe.query_reports["Gross Weight Report"] = {
+frappe.query_reports["Gross Weight Report New"] = {
 	"filters": [
 		{
 			"fieldname": "company",
 			"fieldtype": "Link",
 			"label": "Company",
-			"options": "Company",
-			"reqd":1,
+			"options": "Company"
 		
 		},
 		{
@@ -17,15 +16,7 @@ frappe.query_reports["Gross Weight Report"] = {
 			"fieldname": "posting_date",
 			"fieldtype": "Date",
 			"label": "Date",
-			"reqd":1,
 		},
-		// {
-			
-		// 	"fieldname": "to_date",
-		// 	"fieldtype": "Date",
-		// 	"label": "To Date",
-		// 	// "reqd":1,
-		// },
 		{			
 			"fieldname": "item_code",
 			"fieldtype": "Link",
@@ -42,6 +33,7 @@ frappe.query_reports["Gross Weight Report"] = {
 		// 	"fieldtype": "Check",
 		// 	"label": "Ignore Negative Stock",			
 		// },
+
 
 	]
 };

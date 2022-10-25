@@ -17,7 +17,7 @@ frappe.query_reports["Daily Sales Report"] = {
 			"fieldtype": "Link",
 			"label": "Company",
 			"options": "Company",
-			// "reqd":1,		
+			"reqd":1,		
 		},
 		{
 			
