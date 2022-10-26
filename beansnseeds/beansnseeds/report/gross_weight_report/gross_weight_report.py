@@ -145,7 +145,7 @@ def get_lists(filters):
 		p=frappe.db.sql("""select s.valuation_rate,s.qty_after_transaction as available_stock,s.posting_date,i.item_code,
 		i.item_name,i.last_purchase_rate,id.company from `tabStock Ledger Entry` as s 
 		INNER JOIN `tabItem` as i ON i.item_code=s.item_code INNER JOIN `tabItem Default` as id 
-		ON i.name=id.parent where {0} ORDER BY item_code,posting_time desc """.format(c),as_dict=1)
+		ON i.name=id.parent where {0} GROUP BY item_code ORDER BY item_code,posting_time desc """.format(c),as_dict=1)
 		for i in p:
 			i["indent"]=0
 			filters=c
