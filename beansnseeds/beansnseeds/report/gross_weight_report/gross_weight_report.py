@@ -10,22 +10,22 @@ def execute(filters=None):
 	
 	for li in lists:
 		row=frappe._dict({
-				'item_code':li.item_code,
-				'item_name':li.item_name,
-				'available_stock':li.available_stock,
-				'valuation_rate':li.valuation_rate,
-				'last_purchase_rate':li.last_purchase_rate,
-				'landed_cost_rate':li.landed_cost_rate,
-				'in_warehouse_rate':li.in_warehouse_rate,
-				'purchase_rate':li.purchase_rate,
-				'selling_rate':li.selling_rate,
-				'profit_per_qty':li.profit_per_qty,
-				'profit_percentage_qty':li.profit_percentage_qty,
-				'profit_amount':li.profit_amount,
-				'profit_percentage_amount':li.profit_percentage_amount,
-				'selling_price_list':li.selling_price_list,
-				'purchase_price_list':li.purchase_price_list,
-				'company':li.company,			
+			'item_code':li.item_code,
+			'item_name':li.item_name,
+			'available_stock':li.available_stock,
+			'valuation_rate':li.valuation_rate,
+			'last_purchase_rate':li.last_purchase_rate,
+			'landed_cost_rate':li.landed_cost_rate,
+			'in_warehouse_rate':li.in_warehouse_rate,
+			'purchase_rate':li.purchase_rate,
+			'selling_rate':li.selling_rate,
+			'profit_per_qty':li.profit_per_qty,
+			'profit_percentage_qty':li.profit_percentage_qty,
+			'profit_amount':li.profit_amount,
+			'profit_percentage_amount':li.profit_percentage_amount,
+			'selling_price_list':li.selling_price_list,
+			'purchase_price_list':li.purchase_price_list,
+			'company':li.company,			
 			})	
 		data.append(row)
 	return columns,data
@@ -141,53 +141,54 @@ def get_columns():
 def get_lists(filters):
 	c=get_conditions(filters)
 	data=[]
-	p=frappe.db.sql("""select s.valuation_rate,s.qty_after_transaction as available_stock,s.posting_date,i.item_code,
-	i.item_name,i.last_purchase_rate,id.company from `tabStock Ledger Entry` as s 
-	INNER JOIN `tabItem` as i ON i.item_code=s.item_code INNER JOIN `tabItem Default` as id 
-	ON i.name=id.parent where {0}""".format(c),as_dict=1)
-	for i in p:
-		i["indent"]=0
-		filters=c
-		data.append(i)
-		Landed_data=frappe.db.sql("""select c.applicable_charges as landed_cost_rate from
-		`tabLanded Cost Voucher` as l INNER JOIN  
-		`tabLanded Cost Item` as c where c.item_code=%s and l.name=c.parent order by l.posting_date desc limit 1""",i.item_code,as_dict=1)
-		if Landed_data:
-			for k in Landed_data:
-				k["indent"]=0
-				filters=c
-				i.update(k)
+	if filters.get('company') and filters.get('posting_date'):
+		p=frappe.db.sql("""select s.valuation_rate,s.qty_after_transaction as available_stock,s.posting_date,i.item_code,
+		i.item_name,i.last_purchase_rate,id.company from `tabStock Ledger Entry` as s 
+		INNER JOIN `tabItem` as i ON i.item_code=s.item_code INNER JOIN `tabItem Default` as id 
+		ON i.name=id.parent where {0} ORDER BY item_code,posting_time desc """.format(c),as_dict=1)
+		for i in p:
+			i["indent"]=0
+			filters=c
+			data.append(i)
+			Landed_data=frappe.db.sql("""select c.applicable_charges as landed_cost_rate from
+			`tabLanded Cost Voucher` as l INNER JOIN  
+			`tabLanded Cost Item` as c where c.item_code=%s and l.name=c.parent order by l.posting_date desc limit 1""",i.item_code,as_dict=1)
+			if Landed_data:
+				for k in Landed_data:
+					k["indent"]=0
+					filters=c
+					i.update(k)
 
-		selling_rate_data=frappe.db.sql("""select price_list as selling_price_list ,
-		price_list_rate as selling_rate from `tabItem Price` where item_code=%s and 
-		selling=1 """,i.item_code,as_dict=1)
-		if selling_rate_data:
-			for l in selling_rate_data:
-				l["indent"]=0
-				filters=c
-				i.update(l)
+			selling_rate_data=frappe.db.sql("""select price_list as selling_price_list ,
+			price_list_rate as selling_rate from `tabItem Price` where item_code=%s and 
+			selling=1 """,i.item_code,as_dict=1)
+			if selling_rate_data:
+				for l in selling_rate_data:
+					l["indent"]=0
+					filters=c
+					i.update(l)
 
-		purchase_rate_data=frappe.db.sql("""select price_list as purchase_price_list ,
-		price_list_rate as purchase_rate from `tabItem Price` where item_code=%s and 
-		buying=1 """,i.item_code,as_dict=1)
-		if purchase_rate_data:
-			for m in purchase_rate_data:
-				m["indent"]=0
-				filters=c
-				i.update(m)
+			purchase_rate_data=frappe.db.sql("""select price_list as purchase_price_list ,
+			price_list_rate as purchase_rate from `tabItem Price` where item_code=%s and 
+			buying=1 """,i.item_code,as_dict=1)
+			if purchase_rate_data:
+				for m in purchase_rate_data:
+					m["indent"]=0
+					filters=c
+					i.update(m)
 
-		if i.last_purchase_rate and i.landed_cost_rate:
-			w={'in_warehouse_rate':i .last_purchase_rate+i.landed_cost_rate}
-			i.update(w)
-		if i.selling_rate and i .in_warehouse_rate:
-			p={'profit_per_qty':i.selling_rate-i.in_warehouse_rate}
-			i.update(p)
-		if i.selling_rate and i.in_warehouse_rate:
-			a={'profit_percentage_qty':i.in_warehouse_rate/i.selling_rate*100}
-			i.update(a)
-		if i.profit_per_qty and i.available_stock:
-			pp={'profit_amount':i.profit_per_qty*i.available_stock}
-			i.update(pp)
+			if i.last_purchase_rate and i.landed_cost_rate:
+				w={'in_warehouse_rate':i .last_purchase_rate+i.landed_cost_rate}
+				i.update(w)
+			if i.selling_rate and i .in_warehouse_rate:
+				p={'profit_per_qty':i.selling_rate-i.in_warehouse_rate}
+				i.update(p)
+			if i.selling_rate and i.in_warehouse_rate:
+				a={'profit_percentage_qty':i.in_warehouse_rate/i.selling_rate*100}
+				i.update(a)
+			if i.profit_per_qty and i.available_stock:
+				pp={'profit_amount':i.profit_per_qty*i.available_stock}
+				i.update(pp)
 
 
 	return data
