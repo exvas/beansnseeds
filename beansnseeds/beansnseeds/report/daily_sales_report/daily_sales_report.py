@@ -104,17 +104,10 @@ def get_lists(filters):
 	conditions=get_conditions(filters)
 	data=[]
 
-	parent=frappe.db.sql("""SELECT 
-	s1.posting_date as date,
-	s1.company,
-	s1.name as sales_invoice_reference,
-	s1.grand_total,
-	s1.outstanding_amount,
-	s1.status,
-	st1.sales_person
-	FROM `tabSales Invoice` AS s1 
-	INNER JOIN `tabSales Team` AS st1 ON s1.name=st1.parent and s1.docstatus=1
-	{0}""".format(conditions),as_dict=1)
+	parent=frappe.db.sql("""SELECT s1.posting_date as date,s1.company,s1.name as 
+	sales_invoice_reference,s1.grand_total,s1.outstanding_amount,s1.status,st1.sales_person 
+	FROM `tabSales Invoice` AS s1 INNER JOIN `tabSales Team` AS st1 ON s1.name=st1.parent where 
+	s1.docstatus=1 {0} """.format(conditions),as_dict=1)
 	for dic_p in parent:
 		dic_p["indent"] = 0
 		filters=conditions
@@ -132,7 +125,8 @@ def get_pay_lists(filters,si_name):
 	p1.allocated_amount as paid_amount
 	FROM `tabSales Invoice` AS s1 
 	INNER JOIN `tabSales Team` AS st1 ON s1.name=st1.parent  
-	INNER JOIN `tabPayment Entry Reference` AS p1 ON p1.reference_name=s1.name and s1.docstatus=1 and p1.reference_name=%s {0} """.format(conditions),si_name,as_dict=1)
+	INNER JOIN `tabPayment Entry Reference` AS p1 ON p1.reference_name=s1.name 
+	where s1.docstatus=1 and p1.reference_name=%s {0} """.format(conditions),si_name,as_dict=1)
 	for dic_p in parent:
 		dic_p["indent"] = 0
 		filters=conditions
@@ -142,40 +136,19 @@ def get_pay_lists(filters,si_name):
 
 def get_conditions(filters):
 	conditions=""
-	if filters.get("sales_person"):
-		conditions += " and st1.sales_person='{0}' ".format(filters.get("sales_person"))
-		if filters.get("from_date") and filters.get("to_date"):
-			conditions += " WHERE s1.posting_date BETWEEN '{0}' and '{1}' ".format(filters.get("from_date"),filters.get("to_date"))
-			if filters.get("company"):
-				conditions += " and s1.company='{0}' ".format(filters.get("company"))
-		# if filters.get("sales_person") and filters.get("from_date") and filters.get("to_date"):
-		# 	conditions += " and s1.company='{0}' ".format(filters.get("company"))
-		# if filters.get("sales_person") and filters.get("company"):
-		# 	conditions = " WHERE s1.posting_date BETWEEN '{0}' and '{1}' ".format(filters.get("from_date"),filters.get("to_date"))
-		if filters.get("company"):
-			conditions += " and s1.company='{0}' ".format(filters.get("company"))
-			if filters.get("from_date") and filters.get("to_date"):
-				conditions = " WHERE s1.posting_date BETWEEN '{0}' and '{1}' ".format(filters.get("from_date"),filters.get("to_date"))
 	if filters.get("from_date") and filters.get("to_date"):
-		conditions = " WHERE s1.posting_date BETWEEN '{0}' and '{1}' ".format(filters.get("from_date"),filters.get("to_date"))
-		if filters.get("sales_person"):
-			conditions += " and st1.sales_person='{0}' ".format(filters.get("sales_person"))
-			if filters.get("company"):
-				conditions += " and s1.company='{0}' ".format(filters.get("company"))
+		conditions = "and posting_date BETWEEN '{0}' and '{1}' ".format(filters.get("from_date"),filters.get("to_date"))
 		if filters.get("company"):
-			conditions += " and s1.company='{0}' ".format(filters.get("company"))
-			if filters.get("sales_person"):
-				conditions += " and st1.sales_person='{0}' ".format(filters.get("sales_person"))
+			conditions += "and company='{0}' ".format(filters.get("company"))
+		if filters.get("sales_person"):
+			conditions += "and sales_person='{0}' ".format(filters.get("sales_person"))
 	if filters.get("company"):
-			conditions += " and s1.company='{0}' ".format(filters.get("company"))	
-			if filters.get("from_date") and filters.get("to_date"):
-				conditions = " WHERE s1.posting_date BETWEEN '{0}' and '{1}' ".format(filters.get("from_date"),filters.get("to_date"))
-				if filters.get("sales_person"):
-					conditions += " and st1.sales_person='{0}' ".format(filters.get("sales_person"))
-			if filters.get("sales_person"):
-				conditions += " and st1.sales_person='{0}' ".format(filters.get("sales_person"))
-				if filters.get("from_date") and filters.get("to_date"):
-					conditions = " WHERE s1.posting_date BETWEEN '{0}' and '{1}' ".format(filters.get("from_date"),filters.get("to_date"))
+			conditions += "and company='{0}' ".format(filters.get("company"))
+	if filters.get("sales_person"):
+		conditions += "and sales_person='{0}' ".format(filters.get("sales_person"))
+		
+	# print(filters.get('from_date') , filters.get('to_date'))
+		
 
 	return conditions
 
