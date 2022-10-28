@@ -12,6 +12,7 @@ def execute(filters=None):
 		row=frappe._dict({
 			'item_code':li.item_code,
 			'item_name':li.item_name,
+			'uom':li.uom,
 			'available_stock':li.available_stock,
 			'valuation_rate':li.valuation_rate,
 			'last_purchase_rate':li.last_purchase_rate,
@@ -44,6 +45,13 @@ def get_columns():
 			"fieldname": "item_name",
 			"fieldtype": "Data",
 			"label": "Item Name",
+			
+		},
+		{
+			"fieldname": "uom",
+			"fieldtype": "Link",
+			"options":"UOM",
+			"label": "UOM",
 			
 		},
 		{
@@ -141,11 +149,11 @@ def get_columns():
 def get_lists(filters):
 	c=get_conditions(filters)
 	data=[]
-	if filters.get('company') and filters.get('posting_date'):
+	if filters.get('company') and filters.get('from_date') and filters.get('to_date'):
 		items=frappe.db.sql(""" SELECT item_code from `tabItem`""",as_dict=1)
 		for it in items:
 			p=frappe.db.sql("""select s.valuation_rate,s.qty_after_transaction as available_stock,s.posting_date,i.item_code,
-			i.item_name,i.last_purchase_rate,id.company from `tabStock Ledger Entry` as s 
+			i.item_name,i.stock_uom as uom,i.last_purchase_rate,id.company from `tabStock Ledger Entry` as s 
 			INNER JOIN `tabItem` as i ON i.item_code=s.item_code INNER JOIN `tabItem Default` as id 
 			ON i.name=id.parent where i.item_code=%s {0} ORDER BY posting_date,posting_time desc limit 1""".format(c),it.item_code,as_dict=1)
 			for i in p:
@@ -200,8 +208,12 @@ def get_lists(filters):
 
 def get_conditions(filters):
 	c=""
-	if filters.get("posting_date"):
-		c += "and posting_date='{0}' ".format(filters.get("posting_date"))
+	if filters.get("from_date") and filters.get("to_date"):
+		c += "and posting_date BETWEEN '{0}' and '{1}' ".format(filters.get("from_date"),filters.get("to_date"))
+		if filters.get("company"):
+			c += "and id.company='{0}' ".format(filters.get("company"))
+		if filters.get("item_code"):
+			c += " and i.item_code='{0}' ".format(filters.get("item_code"))	
 	if filters.get("company"):
 		c += "and id.company='{0}' ".format(filters.get("company"))
 	if filters.get("item_code"):

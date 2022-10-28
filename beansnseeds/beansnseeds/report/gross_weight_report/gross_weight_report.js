@@ -14,18 +14,18 @@ frappe.query_reports["Gross Weight Report"] = {
 		},
 		{
 			
-			"fieldname": "posting_date",
+			"fieldname": "from_date",
 			"fieldtype": "Date",
-			"label": "Date",
+			"label": "From Date",
 			"reqd":1,
 		},
-		// {
+		{
 			
-		// 	"fieldname": "to_date",
-		// 	"fieldtype": "Date",
-		// 	"label": "To Date",
-		// 	// "reqd":1,
-		// },
+			"fieldname": "to_date",
+			"fieldtype": "Date",
+			"label": "To Date",
+			"reqd":1,
+		},
 		{			
 			"fieldname": "item_code",
 			"fieldtype": "Link",
