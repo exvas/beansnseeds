@@ -8,57 +8,69 @@ def execute(filters=None):
 	columns=get_columns()
 	conditions=get_conditions(filters)
 	lists=get_lists(filters)
-	if lists:
-		for li in lists:
-			row=frappe._dict({
-					'date':li.date,
-					'sales_person':li.sales_person,
-					'sales_invoice_reference':li.sales_invoice_reference,
-					'reference':li.reference,
-					'grand_total':li.grand_total,
-					'outstanding_amount':li.outstanding_amount,
-					'paid_amount':li.paid_amount,
+	for li in lists:
+		row=frappe._dict({
+				'date':li.date,
+				'sales_person':li.sales_person,
+				'sales_invoice_reference':li.sales_invoice_reference,
+				'reference':li.reference,
+				'grand_total':li.grand_total,
+				'outstanding_amount':li.outstanding_amount,
+				'paid_amount':li.paid_amount,
+			})	
+		data.append(row)
+		if li.status=="Paid":
+			si_name=li.get('sales_invoice_reference')
+			pay_lists=get_pay_lists(filters,si_name)
+			for l in pay_lists:
+				row=frappe._dict({
+					'date':l.date,
+					'sales_person':l.sales_person,
+					'sales_invoice_reference':l.sales_invoice_reference,
+					'reference':l.pname,
+					'grand_total':l.grand_total,
+					'outstanding_amount':l.outstanding_amount,
+					'paid_amount':l.paid_amount,
 					
 					
-				})	
-			data.append(row)
-			if li.status=="Paid":
-				si_name=li.get('sales_invoice_reference')
-				pay_lists=get_pay_lists(filters,si_name)
-				for l in pay_lists:
-					row=frappe._dict({
-						'date':l.date,
-						'sales_person':l.sales_person,
-						'sales_invoice_reference':l.sales_invoice_reference,
-						'reference':l.pname,
-						'grand_total':l.grand_total,
-						'outstanding_amount':l.outstanding_amount,
-						'paid_amount':l.paid_amount,
-						
-						
-					})
-					
+				})
 				
-					data.append(row)
-		return columns,data
-	else:
-		other_date_payment_list=get_payment_list(filters)
-		for l in other_date_payment_list:
-			row=frappe._dict({
-				'date':l.date,
-				'sales_person':l.sales_person,
-				'sales_invoice_reference':l.sales_invoice_reference,
-				'reference':l.pname,
-				'grand_total':l.grand_total,
-				'outstanding_amount':l.outstanding_amount,
-				'paid_amount':l.paid_amount,
+			
+				data.append(row)
+
+	other_date_payment_list=get_payment_list(filters)
+	for l in other_date_payment_list:
+		row=frappe._dict({
+			'date':l.date,
+			'sales_person':l.sales_person,
+			'sales_invoice_reference':l.sales_invoice_reference,
+			'reference':l.pname,
+			'grand_total':l.grand_total,
+			'outstanding_amount':l.outstanding_amount,
+			'paid_amount':l.paid_amount,
+			
+			
+		})
+		data.append(row)
+	return columns,data
+	# else:
+	# 	other_date_payment_list=get_payment_list(filters)
+	# 	for l in other_date_payment_list:
+	# 		row=frappe._dict({
+	# 			'date':l.date,
+	# 			'sales_person':l.sales_person,
+	# 			'sales_invoice_reference':l.sales_invoice_reference,
+	# 			'reference':l.pname,
+	# 			'grand_total':l.grand_total,
+	# 			'outstanding_amount':l.outstanding_amount,
+	# 			'paid_amount':l.paid_amount,
 				
 				
-			})
+	# 		})
 			
 		
-			data.append(row)
-		return columns,data
+	# 		data.append(row)
+	# 	return columns,data
 
 def get_columns():
 	return[
@@ -123,10 +135,10 @@ def get_lists(filters):
 	conditions=get_conditions(filters)
 	data=[]
 
-	parent=frappe.db.sql("""SELECT s1.posting_date as date,s1.company,s1.name as 
-	sales_invoice_reference,s1.grand_total,s1.outstanding_amount,s1.paid_amount,s1.status,st1.sales_person 
-	FROM `tabSales Invoice` AS s1 INNER JOIN `tabSales Team` AS st1 ON s1.name=st1.parent where 
-	s1.docstatus=1 {0} """.format(conditions),as_dict=1)
+	parent=frappe.db.sql("""SELECT pe.posting_date as date,pe.company,pe.name as 
+	sales_invoice_reference,pe.grand_total,pe.outstanding_amount,pe.paid_amount,pe.status,st1.sales_person 
+	FROM `tabSales Invoice` AS pe INNER JOIN `tabSales Team` AS st1 ON pe.name=st1.parent where 
+	pe.docstatus=1 {0} """.format(conditions),as_dict=1)
 	for dic_p in parent:
 		dic_p["indent"] = 0
 		filters=conditions
@@ -157,11 +169,27 @@ def get_payment_list(filters):
 	pe.company,
 	pe.sales_person,
 	pe.total_allocated_amount as paid_amount,
-	pe.name pname,
-	p.reference_name sales_invoice_reference,
-	p.reference_doctype 
-	from `tabPayment Entry` as pe inner join `tabPayment Entry Reference` as p 
-	on pe.name=p.parent where p.reference_doctype='Sales Invoice' {0}""".format(conditions),as_dict=1)
+	pe.name as pname,
+	p.reference_name as sales_invoice_reference,
+	p.reference_doctype,
+	s.posting_date,
+	s.name 
+	from `tabPayment Entry` as pe inner join `tabPayment Entry Reference` as p on pe.name=p.parent 
+	inner join `tabSales Invoice` as s on p.reference_name=s.name where p.reference_doctype='Sales Invoice' and
+	pe.posting_date!=s.posting_date {0}""".format(conditions),as_dict=1)
+	# parent=frappe.db.sql("""select 
+	# pe.posting_date as date,
+	# pe.company,
+	# pe.sales_person,
+	# pe.total_allocated_amount as paid_amount,
+	# pe.name pname,
+	# p.reference_name sales_invoice_reference,
+	# p.reference_doctype,
+	# s.posting_date,
+	# s.name,
+	# from `tabPayment Entry` as pe inner join `tabPayment Entry Reference` as p 
+	# on pe.name=p.parent 
+	# inner join `tabSales Invoice` as s on s.name=p.reference_name where p.reference_doctype='Sales Invoice' {0}""".format(conditions),as_dict=1)
 	for dic_p in parent:
 		dic_p["indent"] = 0
 		filters=conditions
@@ -186,13 +214,13 @@ def get_payment_list(filters):
 def get_conditions(filters):
 	conditions=""
 	if filters.get("from_date") and filters.get("to_date"):
-		conditions = "and posting_date BETWEEN '{0}' and '{1}' ".format(filters.get("from_date"),filters.get("to_date"))
+		conditions = "and pe.posting_date BETWEEN '{0}' and '{1}' ".format(filters.get("from_date"),filters.get("to_date"))
 		if filters.get("company"):
-			conditions += "and company='{0}' ".format(filters.get("company"))
+			conditions += "and pe.company='{0}' ".format(filters.get("company"))
 		if filters.get("sales_person"):
 			conditions += "and sales_person='{0}' ".format(filters.get("sales_person"))
 	if filters.get("company"):
-			conditions += "and company='{0}' ".format(filters.get("company"))
+			conditions += "and pe.company='{0}' ".format(filters.get("company"))
 	if filters.get("sales_person"):
 		conditions += "and sales_person='{0}' ".format(filters.get("sales_person"))
 		
