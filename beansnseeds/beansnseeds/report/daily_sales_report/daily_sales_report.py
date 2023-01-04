@@ -11,7 +11,7 @@ def execute(filters=None):
 	for li in lists:
 		row=frappe._dict({
 				'date':li.date,
-				'sales_person':li.sales_person,
+				'customer':li.customer,
 				'sales_invoice_reference':li.sales_invoice_reference,
 				'reference':li.reference,
 				'grand_total':li.grand_total,
@@ -25,7 +25,7 @@ def execute(filters=None):
 			for l in pay_lists:
 				row=frappe._dict({
 					'date':l.date,
-					'sales_person':l.sales_person,
+					'customer':l.customer,
 					'sales_invoice_reference':l.sales_invoice_reference,
 					'reference':l.pname,
 					'grand_total':l.grand_total,
@@ -42,7 +42,7 @@ def execute(filters=None):
 	for l in other_date_payment_list:
 		row=frappe._dict({
 			'date':l.date,
-			'sales_person':l.sales_person,
+			'customer':l.customer,
 			'sales_invoice_reference':l.sales_invoice_reference,
 			'reference':l.pname,
 			'grand_total':l.grand_total,
@@ -82,10 +82,10 @@ def get_columns():
 
 		},
 		{
-   			"fieldname": "sales_person",
+   			"fieldname": "customer",
    			"fieldtype": "Link",
-   			"label": "Sales Person",
-			"options":"Sales Person",
+   			"label": "Customer",
+			"options":"Customer",
 			"width":170
 			
  		},
@@ -136,7 +136,7 @@ def get_lists(filters):
 	data=[]
 
 	parent=frappe.db.sql("""SELECT pe.posting_date as date,pe.company,pe.name as 
-	sales_invoice_reference,pe.grand_total,pe.outstanding_amount,pe.paid_amount,pe.status,st1.sales_person 
+	sales_invoice_reference,pe.grand_total,pe.outstanding_amount,pe.paid_amount,pe.status,pe.customer as customer,st1.sales_person 
 	FROM `tabSales Invoice` AS pe INNER JOIN `tabSales Team` AS st1 ON pe.name=st1.parent where 
 	pe.docstatus=1 {0} """.format(conditions),as_dict=1)
 	for dic_p in parent:
@@ -151,6 +151,7 @@ def get_pay_lists(filters,si_name):
 	parent= frappe.db.sql("""SELECT pe.posting_date as date,
 	pe.name as pname,
 	pe.company,
+	pe.party as customer,
 	pe.sales_person,
 	pe.total_allocated_amount as paid_amount
 	FROM `tabPayment Entry` AS pe INNER JOIN `tabPayment Entry Reference` AS p
@@ -168,6 +169,7 @@ def get_payment_list(filters):
 	pe.posting_date as date,
 	pe.company,
 	pe.sales_person,
+	pe.party as customer,
 	pe.total_allocated_amount as paid_amount,
 	pe.name as pname,
 	p.reference_name as sales_invoice_reference,
