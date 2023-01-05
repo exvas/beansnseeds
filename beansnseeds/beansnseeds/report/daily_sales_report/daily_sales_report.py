@@ -84,7 +84,7 @@ def get_columns():
 		{
    			"fieldname": "customer",
    			"fieldtype": "Link",
-   			"label": "Customer",
+   			"label": "Customer Name",
 			"options":"Customer",
 			"width":170
 			
@@ -136,7 +136,7 @@ def get_lists(filters):
 	data=[]
 
 	parent=frappe.db.sql("""SELECT pe.posting_date as date,pe.company,pe.name as 
-	sales_invoice_reference,pe.grand_total,pe.outstanding_amount,pe.paid_amount,pe.status,pe.customer as customer,st1.sales_person 
+	sales_invoice_reference,pe.grand_total,pe.outstanding_amount,pe.paid_amount,pe.status,pe.customer_name as customer,st1.sales_person 
 	FROM `tabSales Invoice` AS pe INNER JOIN `tabSales Team` AS st1 ON pe.name=st1.parent where 
 	pe.docstatus=1 {0} """.format(conditions),as_dict=1)
 	for dic_p in parent:
@@ -151,7 +151,7 @@ def get_pay_lists(filters,si_name):
 	parent= frappe.db.sql("""SELECT pe.posting_date as date,
 	pe.name as pname,
 	pe.company,
-	pe.party as customer,
+	pe.party_name as customer,
 	pe.sales_person,
 	pe.total_allocated_amount as paid_amount
 	FROM `tabPayment Entry` AS pe INNER JOIN `tabPayment Entry Reference` AS p
@@ -169,7 +169,7 @@ def get_payment_list(filters):
 	pe.posting_date as date,
 	pe.company,
 	pe.sales_person,
-	pe.party as customer,
+	pe.party_name as customer,
 	pe.total_allocated_amount as paid_amount,
 	pe.name as pname,
 	p.reference_name as sales_invoice_reference,
