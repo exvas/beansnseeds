@@ -19,7 +19,7 @@ def execute(filters=None):
 				'paid_amount':li.paid_amount,
 			})	
 		data.append(row)
-		if li.status=="Paid":
+		if li.status=="Paid" or li.outstanding_amount:
 			si_name=li.get('sales_invoice_reference')
 			pay_lists=get_pay_lists(filters,si_name)
 			for l in pay_lists:
