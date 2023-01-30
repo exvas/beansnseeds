@@ -153,7 +153,7 @@ def get_pay_lists(filters,si_name):
 	pe.company,
 	pe.party_name as customer,
 	pe.sales_person,
-	pe.total_allocated_amount as paid_amount
+	p.allocated_amount as paid_amount
 	FROM `tabPayment Entry` AS pe INNER JOIN `tabPayment Entry Reference` AS p
 	ON p.parent=pe.name WHERE p.reference_name=%s {0}""".format(conditions),si_name,as_dict=1)
 	for dic_p in parent:
@@ -170,7 +170,7 @@ def get_payment_list(filters):
 	pe.company,
 	pe.sales_person,
 	pe.party_name as customer,
-	pe.total_allocated_amount as paid_amount,
+	p.allocated_amount as paid_amount,
 	pe.name as pname,
 	p.reference_name as sales_invoice_reference,
 	p.reference_doctype,
