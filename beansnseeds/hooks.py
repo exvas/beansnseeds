@@ -188,6 +188,19 @@ fixtures = [
         ]
     }
 ]
+report_override_html = {
+	"Accounts Receivable": "overrides/reports/html/accounts_receivable.html",
+}
+report_override = {
+	"Accounts Receivable": "beansnseeds.overrides.reports.account_receivable.execute"
+}
+report_override_js = {
+	"Accounts Receivable": "overrides/reports/js/accounts_receivable.js",
+}
+
+override_whitelisted_methods = {
+	"frappe.desk.query_report.get_script": "beansnseeds.overrides.report.get_script",
+}
 # auth_hooks = [
 # 	"beansnseeds.auth.validate"
 # ]
