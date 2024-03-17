@@ -25,11 +25,10 @@
         <div class="col-xs-5 border">
             <table class="">
                 <tr>
-                    <td style="border-bottom: none !important; border-right: none !important;"><b>{% if (filters.customer_name) { %}
-					{%= filters.customer_name %}<br>
-						{%= filters.customer_address %}
+                    <td style="border-bottom: none !important; border-right: none !important;"><b>{% if (data.length > 0) { %}
+						{%= data[0]["customer_name"] %}<br>
 					{% } else { %}
-						{%= filters.party || filters.supplier %}
+						{%= data[0]["supplier_name"]%}
 					{% } %}</b></td>
                 </tr>
             </table>
@@ -55,36 +54,32 @@
 		<thead>
 			<tr>
 				{% if(report.report_name === "Accounts Receivable" || report.report_name === "Accounts Payable") { %}
-					<td style="width: 20%;text-align: center; border-bottom:1px solid black; border-right:1px solid black;"><b>{%= __("Inv Ref") %}</b></th>
-					<td style="width: 10%;text-align: center;border-bottom:1px solid black; border-right:1px solid black;"><b>{%= __("Date") %}</b></th>
-					<td style="width: 10%;text-align: center;border-bottom:1px solid black; border-right:1px solid black;"><b>{%= __("Due On") %}</b></th>
-					<th style="width: 4%;text-align: center; border-bottom:1px solid black; border-right:1px solid black; color:black;"><b>{%= __("Age") %}</b></th>
-					<td style="width: 14%;text-align: center; border-right:1px solid black;border-bottom:1px solid black;"><b>{%= __("Customer's PO") %}</b></td>
-					<td style="width: 10%;text-align: center;border-bottom:1px solid black; border-right:1px solid black;"><b>{%= __("Debit") %}</b></th>
-					<td style="width: 14%;text-align: center;border-bottom:1px solid black; border-right:1px solid black;"><b>{%= __("Credit") %}</b></th>
-					<!-- {% if(!filters.show_future_payments) { %}
-						<td style="width: 10%; text-align: right;text-align: center;">{%= report.report_name === "Accounts Receivable" ? __('Credit Note') : __('Debit Note') %}</th>
-					{% } %} -->
-					<td style="width: 10%; text-align: right;text-align: center;border-bottom:1px solid black; border-right:1px solid black;"><nobr><b>{%= __("Balance") %}</b></nobr></th>
+
+					<td style="width: 10%;text-align: center;border-bottom:1px solid black; border-right:1px solid black;"><b>{%= __("Date") %}</b></td>
+					<td style="width: 10%;text-align: center; border-bottom:1px solid black; border-right:1px solid black;"><b>{%= __("Inv Ref") %}</b></td>
+					<td style="width: 10%;text-align: center; border-bottom:1px solid black; border-right:1px solid black;"><b>{%= __("Customer Name") %}</b></td>
+					<td style="width: 4%;text-align: center; border-bottom:1px solid black; border-right:1px solid black; color:black;"><b>{%= __("Age") %}</b></td>
+					<td style="width: 10%;text-align: center;border-bottom:1px solid black; border-right:1px solid black;"><b>{%= __("Debit") %}</b></td>
+					<td style="width: 14%;text-align: center;border-bottom:1px solid black; border-right:1px solid black;"><b>{%= __("Credit") %}</b></td>
+					<td style="width: 10%;text-align: center;border-bottom:1px solid black; border-right:1px solid black;"><nobr><b>{%= __("Outstanding") %}</b></nobr></td>
 				{% } else { %}
-					<td style="width: 40%;border-bottom:1px solid black; border-right:1px solid black;">{%= (filters.customer || filters.supplier) ? __("Remarks"): __("Party") %}</th>
-					<td style="width: 15%;border-bottom:1px solid black; border-right:1px solid black;">{%= __("Total Invoiced Amount") %}</th>
-					<td style="width: 15%;border-bottom:1px solid black; border-right:1px solid black;">{%= __("Total Paid Amount") %}</th>
-					<td style="width: 15%;border-bottom:1px solid black; border-right:1px solid black;">{%= report.report_name === "Accounts Receivable Summary" ? __('Credit Note Amount') : __('Debit Note Amount') %}</th>
-					<td style="width: 15%;border-bottom:1px solid black;">{%= __("Total Outstanding Amount") %}</th>
+					<td style="width: 40%;border-bottom:1px solid black; border-right:1px solid black;">{%= (filters.customer || filters.supplier) ? __("Remarks"): __("Party") %}</td>
+					<td style="width: 15%;border-bottom:1px solid black; border-right:1px solid black;">{%= __("Total Invoiced Amount") %}</td>
+					<td style="width: 15%;border-bottom:1px solid black; border-right:1px solid black;">{%= __("Total Paid Amount") %}</td>
+					<td style="width: 15%;border-bottom:1px solid black; border-right:1px solid black;">{%= report.report_name === "Accounts Receivable Summary" ? __('Credit Note Amount') : __('Debit Note Amount') %}</td>
+					<td style="width: 15%;border-bottom:1px solid black;">{%= __("Total Outstanding Amount") %}</td>
 				{% } %}
 			</tr>
 		</thead>
 		<tbody>
-			{% for(var i=0, l=data.length; i<l; i++) { %}
+			{% for(var i=1, l=data.length; i<l; i++) { %}
 				<tr>
 				{% if(report.report_name === "Accounts Receivable" || report.report_name === "Accounts Payable") { %}
 					{% if(data[i]["party"]) { %}
-						<td style="border-bottom:1px solid black; border-right:1px solid black;">{%= data[i]["voucher_no"] %}</td>
 						<td style="text-align: center; border-bottom:1px solid black; border-right:1px solid black;">{%= frappe.datetime.str_to_user(data[i]["posting_date"]) %}</td>
-						<td style="text-align: center; border-bottom:1px solid black; border-right:1px solid black;">{%= frappe.datetime.str_to_user(data[i]["due_date"]) %}</td>
+						<td style="border-bottom:1px solid black; border-right:1px solid black;">{%= data[i]["voucher_no"] %}</td>
+						<td style="border-bottom:1px solid black; border-right:1px solid black;">{%= data[i]["customer_name"] %}</td>
 						<td style="text-align: right; border-bottom:1px solid black; border-right:1px solid black;">{%= data[i]["age"] %}</td>
-						<td style=" border-right:1px solid black; border-bottom:1px solid black;">{%= data[i]["po_no"] %}</td>
 						<td style="text-align: right; border-bottom:1px solid black; border-right:1px solid black;">{%= format_number(data[i]["invoiced"], null, 2) %}</td>
 						<td style="text-align: right; border-bottom:1px solid black; border-right:1px solid black;">{%= format_number(data[i]["paid"], null, 2) %}</td>
 						<td style="text-align: right;border-right: none !important; border-bottom:1px solid black;">{%= format_number(data[i]["outstanding"], null, 2) %}</td>
@@ -97,7 +92,6 @@
 						{% if(report.report_name === "Accounts Receivable" && filters.show_sales_person) { %}
 							<td style="border-bottom: none !important; border-right:1px solid black;"></td>
 						{% } %}
-						<td style="border-bottom: none !important; border-right:1px solid black;"></td>
 						<td style="text-align: right; border-bottom: none !important; border-right:1px solid black;"><b>{%= __("Total") %}</b></td>
 						<td style="text-align: right; border-bottom: none !important; border-right:1px solid black;"></td>
 						<td style="text-align: right; border-bottom: none !important; border-right:1px solid black;"></td>
@@ -214,38 +208,7 @@
 		</table>
 	</div>
 	<div class="col-xs-3 border" style="margin-left: 2mm; margin-right:-3mm; padding-left:1mm; padding-right:1mm;">
-		<table class="table" style="margin-top:1mm; margin-bottom:1mm; border:hidden;">
-			<tr>
-				<td class="text-center" style="border-right: none !important;border-bottom: 1px solid black !important;"><b>Invoice Value Overdue</b></td>
-			</tr>
-			<tr>
-				<td class="text-center" style="border-bottom: hidden !important; border-right: none !important;"><b>
-					{% for(var i=0, l=data.length; i<l; i++) { %}
-						{% if(!data[i]["voucher_no"]) { %}
-						{%= format_number(data[i]["invoiced"], null, 2 ) %}
-						{% } %}
-						{% } %}</b></l>
-				</td>
-			</tr>
-		</table>
-	</div>
-	</div>
-</div>
-		{% } %}
-	{% } %}
-
-	<div class="row">
-	<div class="col-xs-12">
-		<div class="col-xs-9 border" style="padding-left:1mm; padding-right:1mm;">
-			<table class="table table-condensed" style="margin-top:1mm; margin-bottom:1mm; border:hidden;">
-				<tr>
-
-					<td style=" border-bottom: none !important; border-right: none !important;"><b>Bank Details: </b>{%= filters.company_address %}</td>
-				</tr>
-			</table>
-		</div>
-		<div class="col-xs-3 border" style="margin-left: 2mm; margin-right:-3mm; padding-left:1mm; padding-right:1mm;">
-			<table class="table table-condensed" style="margin-top:1mm; margin-bottom:1mm; border:hidden;">
+		<table class="table table-condensed" style="margin-top:1mm; margin-bottom:1mm; border:hidden;">
 				<tr>
 					<td class="text-center" style="border-right: none !important; border-bottom: 1px solid black !important;">
 						<b>Total Amount Due :</b>
@@ -262,6 +225,24 @@
 					</td>
 				</tr>
 			</table>
+	</div>
+	</div>
+</div>
+		{% } %}
+	{% } %}
+
+	<div class="row">
+	<div class="col-xs-12">
+		<div class="col-xs-9 border" style="padding-left:1mm; padding-right:1mm;">
+			<table class="table table-condensed" style="margin-top:1mm; margin-bottom:1mm; border:hidden;">
+				<tr>
+
+					<td style=" border-bottom: none !important; border-right: none !important;"><b>Bank Details: </b>{%= filters.company_address %}</td>
+				</tr>
+			</table>
+		</div>
+		<div>
+
 		</div>
 	</div>
 	</div>
