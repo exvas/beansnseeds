@@ -80,9 +80,9 @@
 						<td style="border-bottom:1px solid black; border-right:1px solid black;">{%= data[i]["voucher_no"] %}</td>
 						<td style="border-bottom:1px solid black; border-right:1px solid black;">{%= data[i]["customer_name"] %}</td>
 						<td style="text-align: right; border-bottom:1px solid black; border-right:1px solid black;">{%= data[i]["age"] %}</td>
-						<td style="text-align: right; border-bottom:1px solid black; border-right:1px solid black;">{%= format_number(data[i]["invoiced"], null, 2) %}</td>
-						<td style="text-align: right; border-bottom:1px solid black; border-right:1px solid black;">{%= format_number(data[i]["paid"], null, 2) %}</td>
-						<td style="text-align: right;border-right: none !important; border-bottom:1px solid black;">{%= format_number(data[i]["outstanding"], null, 2) %}</td>
+						<td style="text-align: right; border-bottom:1px solid black; border-right:1px solid black;">{%= format_number(data[i]["invoiced"], null, 3) %}</td>
+						<td style="text-align: right; border-bottom:1px solid black; border-right:1px solid black;">{%= format_number(data[i]["paid"], null, 3) %}</td>
+						<td style="text-align: right;border-right: none !important; border-bottom:1px solid black;">{%= format_number(data[i]["outstanding"], null, 3) %}</td>
 
 					{% } else { %}
 						<td style="border-bottom: none !important; border-right:1px solid black;"></td>
@@ -95,9 +95,9 @@
 						<td style="text-align: right; border-bottom: none !important; border-right:1px solid black;"><b>{%= __("Total") %}</b></td>
 						<td style="text-align: right; border-bottom: none !important; border-right:1px solid black;"></td>
 						<td style="text-align: right; border-bottom: none !important; border-right:1px solid black;"></td>
-						<td style="text-align: right; border-bottom: none !important; border-right:1px solid black;">{%= format_number(data[i]["invoiced"], null, 2 ) %}</td>
-						<td style="text-align: right;border-bottom: none !important; border-right:1px solid black;">{%= format_number(data[i]["paid"], null, 2) %}</td>
-						<td style="text-align: right;border-bottom: none !important; border-right:1px solid black;">{%= format_number(data[i]["outstanding"], null, 2) %}</td>
+						<td style="text-align: right; border-bottom: none !important; border-right:1px solid black;">{%= format_number(data[i]["invoiced"], null, 3 ) %}</td>
+						<td style="text-align: right;border-bottom: none !important; border-right:1px solid black;">{%= format_number(data[i]["paid"], null, 3) %}</td>
+						<td style="text-align: right;border-bottom: none !important; border-right:1px solid black;">{%= format_number(data[i]["outstanding"], null, 3) %}</td>
 				
 					{% } %}
 				{% } else { %}
@@ -118,10 +118,10 @@
 					{% } else { %}
 							<td style="border-bottom:1px solid black; border-right:1px solid black;"><b>{%= __("Total") %}</b></td>
 						{% } %}
-						<td style="text-align: right; border-bottom:1px solid black; border-right:1px solid black;">{%= format_number(data[i]["invoiced"], null, 2) %}</td>
-						<td style="text-align: right; border-bottom:1px solid black; border-right:1px solid black;">{%= format_number(data[i]["paid"], null, 2) %}</td>
-						<td style="text-align: right; border-bottom:1px solid black; border-right:1px solid black;">{%= format_number(data[i]["credit_note"], null, 2) %}</td>
-						<td style="text-align: right; border-bottom:1px solid black; border-right:1px solid black;">{%= format_number(data[i]["outstanding"], null, 2) %}</td>
+						<td style="text-align: right; border-bottom:1px solid black; border-right:1px solid black;">{%= format_number(data[i]["invoiced"], null, 3) %}</td>
+						<td style="text-align: right; border-bottom:1px solid black; border-right:1px solid black;">{%= format_number(data[i]["paid"], null, 3) %}</td>
+						<td style="text-align: right; border-bottom:1px solid black; border-right:1px solid black;">{%= format_number(data[i]["credit_note"], null, 3) %}</td>
+						<td style="text-align: right; border-bottom:1px solid black; border-right:1px solid black;">{%= format_number(data[i]["outstanding"], null, 3) %}</td>
 					{% } %}
 				{% } %}
 				</tr>
@@ -175,22 +175,22 @@
 						{%= format_number(balance_row["age"], null, 2) %}
 					</td> -->
 					<td class="text-right" style=" border-bottom: none !important; border-right:1px solid black;">
-						{%= format_number(balance_row["range1"], null, 2) %}
+						{%= format_number(balance_row["range1"], null, 3) %}
 					</td>
 					<td class="text-right" style="border-bottom: none !important; border-right:1px solid black;">
-						{%= format_number(balance_row["range2"], null, 2) %}
+						{%= format_number(balance_row["range2"], null, 3) %}
 					</td>
 					<td class="text-right" style="border-bottom: none !important; border-right:1px solid black;">
-						{%= format_number(balance_row["range3"], null, 2) %}
+						{%= format_number(balance_row["range3"], null, 3) %}
 					</td>
 					<td class="text-right" style="border-bottom: none !important; border-right:1px solid black;">
-						{%= format_number(balance_row["range4"], null, 2) %}
+						{%= format_number(balance_row["range4"], null, 3) %}
 					</td>
 					<td class="text-right" style="border-bottom: none !important; border-right:1px solid black;">
-						{%= format_number(balance_row["range5"], null, 2) %}
+						{%= format_number(balance_row["range5"], null, 3) %}
 					</td>
 					<td class="text-right" style="border-bottom: none !important; border-right: none !important;">
-						{%= format_number(flt(balance_row["outstanding"]), null, 2) %}
+						{%= format_number(flt(balance_row["outstanding"]), null, 3) %}
 					</td>
 				</tr>
 					<!-- <td>{%= __("PDC Payment") %}</td> -->
@@ -219,7 +219,7 @@
 					<b>
 						{% for(var i=0, l=data.length; i<l; i++) { %}
 						{% if(!data[i]["voucher_no"]) { %}
-						{%= format_number(data[i]["outstanding"], null, 2 ) %}
+						{%= format_number(data[i]["outstanding"], null, 3 ) %}
 						{% } %}
 						{% } %}</b>
 					</td>
