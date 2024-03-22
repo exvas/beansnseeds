@@ -72,7 +72,7 @@
 			</tr>
 		</thead>
 		<tbody>
-			{% for(var i=1, l=data.length; i<l; i++) { %}
+			{% for(var i=0, l=data.length; i<l; i++) { %}
 				<tr>
 				{% if(report.report_name === "Accounts Receivable" || report.report_name === "Accounts Payable") { %}
 					{% if(data[i]["party"]) { %}

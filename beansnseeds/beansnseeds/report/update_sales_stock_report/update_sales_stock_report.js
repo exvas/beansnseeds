@@ -21,6 +21,24 @@ frappe.query_reports["Update Sales Stock Report"] = {
 
 				return frappe.db.get_link_options("Sales Invoice", txt);
 			},
+		},
+		{
+			"fieldname":"warehouse",
+			"label": __("Warehouse"),
+			"fieldtype": "MultiSelectList",
+			get_data: function(txt) {
+
+				return frappe.db.get_link_options("Warehouse", txt);
+			},
+		},
+		{
+			"fieldname":"sales_person",
+			"label": __("Sales Person"),
+			"fieldtype": "MultiSelectList",
+			get_data: function(txt) {
+
+				return frappe.db.get_link_options("Sales Person", txt);
+			},
 		}
 	]
 };

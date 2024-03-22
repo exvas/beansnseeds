@@ -10,6 +10,7 @@ def get_columns():
 		{"label": "Item Code", "fieldname": "item_code", "fieldtype": "Link", "options": "Item", "width": "200"},
 		{"label": "Item Name", "fieldname": "item_name", "fieldtype": "Data", "width": "250"},
 		{"label": "UOM", "fieldname": "uom", "fieldtype": "Link","options":"UOM", "width": "120"},
+		{"label": "Qty", "fieldname": "qty", "fieldtype": "Float", "width": "120"},
 		{"label": "Rate", "fieldname": "rate", "fieldtype": "Float", "width": "120"},
 		{"label": "Stock UOM", "fieldname": "stock_uom", "fieldtype": "Link","options":"UOM", "width": "110"},
 		{"label": "UOM Conversion Factor", "fieldname": "conversion_factor", "fieldtype": "Float", "width": "200"},
@@ -29,8 +30,19 @@ def execute(filters=None):
 	elif len(filters.get("sales_invoice")) > 1:
 		conditions += " and SI.name in {0} ".format(tuple(filters.get("sales_invoice")))
 
+	if len(filters.get("warehouse")) == 1:
+		conditions += " and SII.warehouse='{0}' ".format(filters.get("warehouse")[0])
+	elif len(filters.get("sales_invoice")) > 1:
+		conditions += " and SII.warehouse in {0} ".format(tuple(filters.get("warehouse")))
+
+	if len(filters.get("sales_person")) == 1:
+		conditions += " and ST.sales_person='{0}' ".format(filters.get("sales_person")[0])
+	elif len(filters.get("sales_invoice")) > 1:
+		conditions += " and ST.sales_person in {0} ".format(tuple(filters.get("sales_person")))
+
 	data = frappe.db.sql(""" SELECT SI.name as sales_invoice,SI.posting_date,SI.customer_name, SII.* FROM `tabSales Invoice` SI 
 							INNER JOIN `tabSales Invoice Item` SII ON SII.parent = SI.name
+							LEFT JOIN `tabSales Team` ST ON ST.parent = SI.name
 							WHERE SI.docstatus=1 {0}
 							""".format(conditions),as_dict=1)
 	return columns, data
