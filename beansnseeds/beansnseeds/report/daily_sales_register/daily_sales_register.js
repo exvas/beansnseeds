@@ -1,7 +1,6 @@
 // Copyright (c) 2025, sammish and contributors
 // For license information, please see license.txt
 
-
 frappe.query_reports["Daily Sales Register"] = {
     "filters": [
         {
@@ -12,7 +11,7 @@ frappe.query_reports["Daily Sales Register"] = {
             "default": frappe.defaults.get_user_default("Company"),
             "reqd": 1
         },
-		 {
+        {
             "fieldname": "sales_person",
             "label": __("Sales Person"),
             "fieldtype": "Link",
@@ -23,7 +22,7 @@ frappe.query_reports["Daily Sales Register"] = {
             "fieldname": "from_date",
             "label": __("From Date"),
             "fieldtype": "Date",
-            "default": frappe.datetime.add_months(frappe.datetime.get_today(), -1),
+            "default": frappe.datetime.get_today(),
             "reqd": 1,
             "width": "60px"
         },
@@ -40,61 +39,98 @@ frappe.query_reports["Daily Sales Register"] = {
             "label": __("Customer"),
             "fieldtype": "Link",
             "options": "Customer",
-            "width": "100px"
+            "width": "100px",
+            "get_query": function() {
+                return {
+                    "doctype": "Customer",
+                    "filters": {
+                        "disabled": 0
+                    }
+                };
+            }
         }
     ],
 
     "formatter": function(value, row, column, data, default_formatter) {
-        value = default_formatter(value, row, column, data);
+        // Get currency precision from system settings (default to 3)
+        let precision = frappe.boot.sysdefaults.currency_precision || 3;
         
-        // Highlight overdue amounts in red
-        if (column.fieldname == "outstanding_amount" && data && flt(data.outstanding_amount) > 0) {
+        // Handle currency formatting with system precision
+        if (column.fieldtype === "Currency" && value !== null && value !== undefined && value !== "") {
+            let currency = frappe.defaults.get_default("currency") || "BHD";
+            let num_value = flt(value);
+            let formatted_value = num_value.toFixed(precision);
+            value = `${formatted_value} ${currency}`;
+        } else {
+            value = default_formatter(value, row, column, data);
+        }
+
+        // Highlight outstanding amounts in red
+        if (column.fieldname === "outstanding_amount" && data && flt(data.outstanding_amount) > 0) {
             value = `<span style='color: red; font-weight: bold;'>${value}</span>`;
         }
-        
-        // Highlight paid amounts in green
-        if (column.fieldname == "paid_amount" && data && flt(data.paid_amount) > 0) {
+
+        // Highlight allocated amounts in green
+        if (column.fieldname === "allocated_amount" && data && flt(data.allocated_amount) > 0) {
             value = `<span style='color: green; font-weight: bold;'>${value}</span>`;
         }
-        
-        // Make SI Reference clickable
-        if (column.fieldname == "si_reference" && data && data.si_reference) {
-            value = `<a href="/app/sales-invoice/${data.si_reference}" target="_blank">${data.si_reference}</a>`;
+
+        // Highlight previous allocated amounts in blue
+        if (column.fieldname === "previous_allocated_amount" && data && flt(data.previous_allocated_amount) > 0) {
+            value = `<span style='color: blue; font-weight: bold;'>${value}</span>`;
         }
-        
+
+        // Make Customer clickable and display customer name
+        if (column.fieldname === "customer" && data && data.customer) {
+            let display_text = data.customer;
+            if (data.customer_name && data.customer_name !== data.customer) {
+                display_text = `${data.customer} - ${data.customer_name}`;
+            }
+            value = `<a href="/app/customer/${data.customer}" target="_blank" style="text-decoration: underline;">${display_text}</a>`;
+        }
+
+        // Make Customer Name display
+        if (column.fieldname === "customer_name" && data && data.customer_name) {
+            value = `<span>${data.customer_name}</span>`;
+        }
+
+        // Make SI Reference clickable
+        if (column.fieldname === "si_reference" && data && data.si_reference) {
+            value = `<a href="/app/sales-invoice/${data.si_reference}" target="_blank" style="text-decoration: underline;">${data.si_reference}</a>`;
+        }
+
         // Make PE Reference clickable
-        if (column.fieldname == "pe_reference" && data && data.pe_reference) {
+        if (column.fieldname === "pe_reference" && data && data.pe_reference) {
             if (data.pe_reference.startsWith('ACC-PAY')) {
-                value = `<a href="/app/payment-entry/${data.pe_reference}" target="_blank">${data.pe_reference}</a>`;
+                value = `<a href="/app/payment-entry/${data.pe_reference}" target="_blank" style="text-decoration: underline;">${data.pe_reference}</a>`;
             } else {
-                value = `<a href="/app/journal-entry/${data.pe_reference}" target="_blank">${data.pe_reference}</a>`;
+                value = `<a href="/app/journal-entry/${data.pe_reference}" target="_blank" style="text-decoration: underline;">${data.pe_reference}</a>`;
             }
         }
-        
+
         return value;
     },
 
     "onload": function(report) {
         // Add custom buttons to the report
         report.page.add_inner_button(__("Export to Excel"), function() {
-            frappe.query_report.export_report('Excel', 'Beans and Seeds Trad Report');
+            frappe.query_report.export_report('Excel', 'Daily Sales Register');
         });
 
         report.page.add_inner_button(__("Export to PDF"), function() {
-            frappe.query_report.export_report('PDF', 'Beans and Seeds Trad Report');
+            frappe.query_report.export_report('PDF', 'Daily Sales Register');
         });
 
         report.page.add_inner_button(__("Print"), function() {
             frappe.query_report.print_report();
         });
 
-        // Add a refresh button
         report.page.add_inner_button(__("Refresh"), function() {
             report.refresh();
         }, __("Actions"));
-        
+
         // Set report title dynamically
-        let title = __("Beans and Seeds Trading Report");
+        let title = __("Daily Sales Register");
         if (report.filters && report.filters.length > 0) {
             let company = report.get_filter_value('company');
             if (company) {
@@ -110,28 +146,43 @@ frappe.query_reports["Daily Sales Register"] = {
         if (data && data.length > 0) {
             let total_grand_total = 0;
             let total_outstanding = 0;
-            let total_paid = 0;
-            
+            let total_allocated = 0;
+
             data.forEach(function(row) {
                 total_grand_total += flt(row.grand_total);
                 total_outstanding += flt(row.outstanding_amount);
-                total_paid += flt(row.paid_amount);
+                total_allocated += flt(row.allocated_amount);
             });
+
+            // Get currency precision from system settings
+            let precision = frappe.boot.sysdefaults.currency_precision || 3;
             
+            // Round totals to system precision
+            total_grand_total = flt(total_grand_total).toFixed(precision);
+            total_outstanding = flt(total_outstanding).toFixed(precision);
+            total_allocated = flt(total_allocated).toFixed(precision);
+
+            let currency = frappe.defaults.get_default("currency") || "BHD";
+
             // Add summary row
             let summary_row = {
                 date: "",
-                customer_name: "<b>Total</b>",
+                customer: "",
+                customer_name: "<b>TOTAL</b>",
+                sales_person: "",
                 si_reference: "",
                 pe_reference: "",
-                grand_total: `<b>${format_currency(total_grand_total)}</b>`,
-                outstanding_amount: `<b style='color: red;'>${format_currency(total_outstanding)}</b>`,
-                paid_amount: `<b style='color: green;'>${format_currency(total_paid)}</b>`
+                grand_total: `<b>${total_grand_total} ${currency}</b>`,
+                previous_allocated_amount: "",
+                allocated_amount: `<b style='color: green;'>${total_allocated} ${currency}</b>`,
+                outstanding_amount: `<b style='color: red;'>${total_outstanding} ${currency}</b>`
             };
-            
+
             // Add the summary row to datatable
             setTimeout(function() {
-                datatable_obj.bodyRenderer.addRow(summary_row, data.length);
+                if (datatable_obj && datatable_obj.bodyRenderer && datatable_obj.bodyRenderer.addRow) {
+                    datatable_obj.bodyRenderer.addRow(summary_row, data.length);
+                }
             }, 100);
         }
     },
@@ -142,32 +193,33 @@ frappe.query_reports["Daily Sales Register"] = {
             return null;
         }
 
+        let precision = frappe.boot.sysdefaults.currency_precision || 3;
         let monthly_data = {};
-        
+
         result.forEach(function(row) {
             let month = moment(row.date).format('YYYY-MM');
             if (!monthly_data[month]) {
                 monthly_data[month] = {
                     invoiced: 0,
-                    paid: 0,
+                    allocated: 0,
                     outstanding: 0
                 };
             }
-            
+
             monthly_data[month].invoiced += flt(row.grand_total);
-            monthly_data[month].paid += flt(row.paid_amount);
+            monthly_data[month].allocated += flt(row.allocated_amount);
             monthly_data[month].outstanding += flt(row.outstanding_amount);
         });
 
         let labels = Object.keys(monthly_data).sort();
         let invoiced_data = labels.map(function(label) {
-            return monthly_data[label].invoiced;
+            return flt(monthly_data[label].invoiced).toFixed(precision);
         });
-        let paid_data = labels.map(function(label) {
-            return monthly_data[label].paid;
+        let allocated_data = labels.map(function(label) {
+            return flt(monthly_data[label].allocated).toFixed(precision);
         });
         let outstanding_data = labels.map(function(label) {
-            return monthly_data[label].outstanding;
+            return flt(monthly_data[label].outstanding).toFixed(precision);
         });
 
         return {
@@ -182,8 +234,8 @@ frappe.query_reports["Daily Sales Register"] = {
                         chartType: 'bar'
                     },
                     {
-                        name: __("Total Paid"),
-                        values: paid_data,
+                        name: __("Total Allocated"),
+                        values: allocated_data,
                         chartType: 'bar'
                     },
                     {
@@ -195,19 +247,16 @@ frappe.query_reports["Daily Sales Register"] = {
             },
             type: 'bar',
             height: 300,
-            colors: ['#7cd6fd', '#5e64ff', '#ff6b6b']
+            colors: ['#7cd6fd', '#28a745', '#ff6b6b']
         };
     },
 
-    // Custom function to handle row click events
     "tree": false,
     "name_field": "si_reference",
     "parent_field": "",
     "initial_depth": 0,
 
-    // Add custom styling
     "custom_format": function(value, row, column) {
-        // Custom formatting logic can be added here
         return value;
     }
 };
@@ -215,21 +264,20 @@ frappe.query_reports["Daily Sales Register"] = {
 // Utility functions
 function format_currency(value, currency) {
     if (!currency) {
-        currency = frappe.defaults.get_default("currency");
+        currency = frappe.defaults.get_default("currency") || "BHD";
     }
-    return format_number(value, null, 2) + " " + currency;
+    let precision = frappe.boot.sysdefaults.currency_precision || 3;
+    return flt(value).toFixed(precision) + " " + currency;
 }
 
 // Add event listeners for filter changes
-frappe.query_reports["Beans and Seeds Trad Report"].on_filter_change = function() {
-    // Custom logic when filters change
+frappe.query_reports["Daily Sales Register"].on_filter_change = function() {
     console.log("Filters changed");
 };
 
 // Custom CSS for the report
 frappe.provide('frappe.query_reports');
 $(document).ready(function() {
-    // Add custom CSS
     $('<style>')
         .prop('type', 'text/css')
         .html(`
@@ -265,6 +313,11 @@ $(document).ready(function() {
                 font-size: 18px;
                 font-weight: bold;
                 color: #495057;
+            }
+            
+            .dt-cell[data-fieldtype="Currency"] {
+                text-align: right;
+                font-family: monospace;
             }
         `)
         .appendTo('head');
