@@ -103,16 +103,16 @@ def get_columns():
 			"width":120
   		},
 		{
-   			"fieldname": "paid_amount",
-   			"fieldtype": "Currency",
-   			"label": "Paid Amount",
-			"width":120
-  		},
-		{
    			"fieldname": "write_off_amount",
    			"fieldtype": "Currency",
    			"label": "Write Off / Deduction",
 			"width":140
+  		},
+		{
+   			"fieldname": "paid_amount",
+   			"fieldtype": "Currency",
+   			"label": "Paid Amount",
+			"width":120
   		},
 	]
 
