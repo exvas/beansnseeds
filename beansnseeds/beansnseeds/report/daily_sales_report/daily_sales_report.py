@@ -36,7 +36,7 @@ def execute(filters=None):
 					'reference':pe_name,
 					'grand_total':l.grand_total,
 					'outstanding_amount':l.outstanding_amount,
-					'paid_amount':l.paid_amount,
+					'paid_amount':(l.paid_amount or 0) - write_off,
 					'write_off_amount':write_off,
 				})
 
@@ -55,7 +55,7 @@ def execute(filters=None):
 			'reference':pe_name,
 			'grand_total':l.grand_total,
 			'outstanding_amount':l.outstanding_amount,
-			'paid_amount':l.paid_amount,
+			'paid_amount':(l.paid_amount or 0) - write_off,
 			'write_off_amount':write_off,
 		})
 		data.append(row)
